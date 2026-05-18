@@ -210,18 +210,6 @@ cd frontend
 npx tsc --noEmit
 ```
 
----
-
-## Next improvements I can make for you (pick one or more)
-
-- Replace remaining `any` types and run typecheck.
-- Add `docker-compose.yml` to run the stack locally.
-- Create an `API.md` or OpenAPI spec and Postman collection.
-- Add consistent UI loading skeletons and toast notifications.
-- Add unit/integration tests (Jest / supertest) for critical API endpoints.
-
-
----
 
 
 
