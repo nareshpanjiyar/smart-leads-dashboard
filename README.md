@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # smart-leads-dashboard
 Smart Leads Dashboard – Full-stack MERN (React, Node, Express, MongoDB) lead management system with JWT auth, role-based access, advanced filtering, debounced search, pagination, CSV export, and Docker support. Built with TypeScript and TailwindCSS.
 =======
@@ -221,17 +220,8 @@ npx tsc --noEmit
 - Add consistent UI loading skeletons and toast notifications.
 - Add unit/integration tests (Jest / supertest) for critical API endpoints.
 
-If you want any of these, tell me which one to start and I will implement it and run a quick verification.
 
 ---
 
-## Contact / submission
 
-If you need to submit this assignment, the requested artifacts are included or can be added on request:
-- GitHub repository URL — push the repo and share the link
-- `.env.example` — `backend/.env.example` is present
-- `README.md` — this file
-- API documentation — can generate on request
 
-Good luck — tell me which next improvement I should implement and I’ll do it now.
->>>>>>> 2c9d341 (chore: prepare project for submission (docs, docker-compose, env examples, UI improvements))
