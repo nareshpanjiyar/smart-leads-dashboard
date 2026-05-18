@@ -6,7 +6,18 @@ import errorHandler from './middleware/errorHandler';
 
 const app = express();
 
-app.use(cors());
+// Configure CORS to allow frontend origin in production
+const CLIENT_URL = process.env.CLIENT_URL || '*';
+const corsOptions = {
+	origin: CLIENT_URL === '*' ? true : CLIENT_URL,
+	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+	allowedHeaders: ['Content-Type', 'Authorization'],
+	credentials: true,
+};
+
+app.use(cors(corsOptions));
+// enable preflight across the board
+app.options('*', cors(corsOptions));
 app.use(express.json());
 
 // simple health route for browsers and checks
