@@ -6,10 +6,22 @@ import errorHandler from './middleware/errorHandler';
 
 const app = express();
 
-// Configure CORS to allow frontend origin in production
-const CLIENT_URL = process.env.CLIENT_URL || '*';
+// Configure CORS: allow a comma-separated list in CLIENT_ORIGINS or single CLIENT_URL
+const originsEnv = process.env.CLIENT_ORIGINS || process.env.CLIENT_URL || '';
+const allowedOrigins = originsEnv
+	.split(',')
+	.map((s) => s.trim())
+	.filter(Boolean);
+
 const corsOptions = {
-	origin: CLIENT_URL === '*' ? true : CLIENT_URL,
+	origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+		// allow non-browser tools like curl/postman (no origin)
+		if (!origin) return callback(null, true);
+		// if no allowedOrigins configured, allow everything (fallback)
+		if (allowedOrigins.length === 0) return callback(null, true);
+		if (allowedOrigins.includes(origin)) return callback(null, true);
+		return callback(new Error('Not allowed by CORS'));
+	},
 	methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 	allowedHeaders: ['Content-Type', 'Authorization'],
 	credentials: true,
