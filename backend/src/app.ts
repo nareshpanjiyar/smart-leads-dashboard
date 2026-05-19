@@ -50,18 +50,21 @@ app.use(express.json());
 // simple health route for browsers and checks
 app.get('/', (_req, res) => res.send('Smart Leads API is running'));
 
-app.use('/api/auth', authRoutes);
-app.use('/api/leads', leadRoutes);
-
-app.use(errorHandler);
-
-// Debug endpoint to inspect CORS configuration at runtime
-app.get('/debug/cors', (_req, res) => {
+const corsDebugHandler = (_req: express.Request, res: express.Response) => {
 	res.json({
 		clientOriginsEnv: process.env.CLIENT_ORIGINS || null,
 		clientUrlEnv: process.env.CLIENT_URL || null,
 		allowedOrigins,
 	});
-});
+};
+
+// Debug endpoint to inspect CORS configuration at runtime
+app.get('/debug/cors', corsDebugHandler);
+app.get('/api/debug/cors', corsDebugHandler);
+
+app.use('/api/auth', authRoutes);
+app.use('/api/leads', leadRoutes);
+
+app.use(errorHandler);
 
 export default app;
