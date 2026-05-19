@@ -2,12 +2,13 @@ import { Request, Response } from 'express';
 import * as leadService from '../services/leadService';
 import asyncHandler from '../utils/asyncHandler';
 import { generateCsv } from '../utils/csvExport';
+import { ILead } from '../types';
 
 export const getLeads = asyncHandler(async (req: Request, res: Response) => {
   const { status, source, search, sort, page, limit } = req.query;
   const result = await leadService.getLeads({
-    status: status as string,
-    source: source as string,
+    status: status as ILead['status'],
+    source: source as ILead['source'],
     search: search as string,
     sort: sort as 'latest' | 'oldest',
     page: Number(page) || 1,
@@ -39,8 +40,8 @@ export const deleteLead = asyncHandler(async (req: Request, res: Response) => {
 export const exportLeads = asyncHandler(async (req: Request, res: Response) => {
   const { status, source, search, sort } = req.query;
   const leads = await leadService.getLeadsForExport({
-    status: status as string,
-    source: source as string,
+    status: status as ILead['status'],
+    source: source as ILead['source'],
     search: search as string,
     sort: sort as 'latest' | 'oldest',
   });

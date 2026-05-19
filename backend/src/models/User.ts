@@ -13,12 +13,9 @@ const userSchema = new Schema<IUser>(
 );
 
 userSchema.pre('save', async function () {
-  // `this` is the document being saved. Keep typings loose here to avoid mongoose hook overload issues.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const doc: any = this;
-  if (!doc.isModified('password')) return;
+  if (!this.isModified('password')) return;
   const salt = await bcrypt.genSalt(10);
-  doc.password = await bcrypt.hash(doc.password, salt);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword: string) {

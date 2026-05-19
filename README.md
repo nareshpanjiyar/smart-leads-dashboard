@@ -1,215 +1,191 @@
-# smart-leads-dashboard
-Smart Leads Dashboard – Full-stack MERN (React, Node, Express, MongoDB) lead management system with JWT auth, role-based access, advanced filtering, debounced search, pagination, CSV export, and Docker support. Built with TypeScript and TailwindCSS.
-=======
 # Smart Leads Dashboard
 
-Full-stack Lead Management Dashboard (MERN + TypeScript) — a project built to meet a Full-Stack Internship assignment specification.
+Full-stack Lead Management Dashboard built for the MERN internship assignment.
 
-This repository contains two main folders:
+## Tech Stack
 
-- `backend/` — Node.js + Express + TypeScript API with Mongoose (MongoDB)
-- `frontend/` — React + TypeScript + Vite + TailwindCSS client
+- Frontend: React, TypeScript, TailwindCSS, Vite
+- Backend: Node.js, Express.js, TypeScript
+- Database: MongoDB Atlas with Mongoose
+- Auth: JWT, bcrypt password hashing
+- Deployment: Vercel frontend, Render backend
+- Tooling: Docker, Docker Compose
 
-This README explains how to run the project locally, the API endpoints, environment variables, and a short compliance checklist for the assignment.
+## Features
 
----
+- User registration and login
+- JWT protected routes
+- Password hashing with bcrypt
+- Auth middleware and centralized error handling
+- Role-based access control: `admin` and `sales`
+- Leads CRUD with Mongoose models
+- Admin-only create, update, and delete
+- Sales/admin read access
+- Combined filtering by status, source, and search term
+- Search by name or email
+- Sort by latest or oldest
+- Backend pagination with `skip` and `limit`
+- Debounced frontend search
+- CSV export
+- Responsive dashboard UI
+- Reusable components
+- Loading, empty, and error states
+- Form validation
+- Dark mode support
 
-## Quick status
+## Folder Structure
 
-- Backend: Express + TypeScript, JWT auth, role-based access (admin/sales), leads CRUD, pagination, CSV export, validation via Zod, centralized error handling.
-- Frontend: React + TypeScript, TailwindCSS, responsive layout, debounced search, CSV export, dark mode support, role-aware UI.
-
----
-
-## Prerequisites
-
-- Node.js (v18+ recommended; project has been tested with Node 18–24)
-- npm
-- (Optional) Docker & Docker Compose if you want to run services in containers
-
----
-
-## Environment files
-
-Backend example: `backend/.env.example` (copy to `backend/.env`)
-
-Required keys (example):
-
+```text
+backend/
+  src/
+    config/
+    controllers/
+    middleware/
+    models/
+    routes/
+    services/
+    types/
+    utils/
+frontend/
+  src/
+    components/
+    contexts/
+    hooks/
+    pages/
+    services/
+    types/
+    utils/
 ```
+
+## Environment Variables
+
+Copy the examples and fill in real values.
+
+Backend: `backend/.env`
+
+```env
 PORT=5001
-MONGO_URI=mongodb://localhost:27017/smart-leads
+MONGO_URI=mongodb+srv://<username>:<password>@<cluster-host>/leads-dashboard?retryWrites=true&w=majority
 JWT_SECRET=your_jwt_secret_here
 JWT_EXPIRE=7d
+CLIENT_ORIGINS=http://localhost:5173,https://your-frontend-domain.com
 ```
 
-Frontend example: create `frontend/.env` (the repository includes a `.env` to point to backend for dev):
+Frontend: `frontend/.env`
 
-```
+```env
 VITE_API_URL=http://localhost:5001/api
 ```
 
----
+## Local Setup
 
-## Run locally (development)
-
-1) Install dependencies
+Install backend dependencies:
 
 ```bash
-# from repo root
 cd backend
 npm install
+```
 
-# in another terminal
+Install frontend dependencies:
+
+```bash
 cd frontend
 npm install
 ```
 
-2) Start backend (development)
+Run backend:
 
 ```bash
 cd backend
-# run once
-npx ts-node src/server.ts
-# or install ts-node-dev for automatic reloads (recommended)
-# npm install --save-dev ts-node-dev
-# npx ts-node-dev --respawn --transpile-only src/server.ts
+npm run dev
 ```
 
-3) Start frontend (development)
+Run frontend:
 
 ```bash
 cd frontend
 npm run dev
-# open http://localhost:5173
 ```
 
-Notes:
-- The backend falls back to an in-memory MongoDB (mongodb-memory-server) when `MONGO_URI` is not provided; that is useful for development but is ephemeral.
-- Ensure `frontend/.env` points to the correct backend URL (VITE_API_URL). Vite reads `.env` at startup, so restart Vite after changes.
+Open:
 
----
-
-## API - Main endpoints
-
-Base URL (dev): http://localhost:5001/api
-
-### Auth
-
-- POST /api/auth/register
-  - Body: { name, email, password, role? }
-  - Response: 201 Created with user object and `token`
-  - Example:
-
-```json
-POST /api/auth/register
-Content-Type: application/json
-{
-  "name": "Alice",
-  "email": "alice@example.com",
-  "password": "password123",
-  "role": "sales" // optional, default 'sales'
-}
+```text
+http://localhost:5173
 ```
 
-Success response (201):
-```json
-{
-  "_id": "...",
-  "name": "Alice",
-  "email": "alice@example.com",
-  "role": "sales",
-  "token": "<jwt>"
-}
-```
+## Docker Setup
 
-- POST /api/auth/login
-  - Body: { email, password }
-  - Response: 200 OK with user + token
-
-- GET /api/auth/profile
-  - Protected: requires `Authorization: Bearer <token>`
-  - Response: current user info
-
-### Leads
-
-All leads routes are under `/api/leads` and require authentication. Some routes are restricted by role (admin only for create/update/delete).
-
-- GET /api/leads
-  - Query params (optional): status, source, search, sort (`latest`|`oldest`), page (default 1), limit (default 10)
-  - Example: `/api/leads?status=Qualified&source=Instagram&search=Rahul&page=1&limit=10`
-  - Response: { data: Lead[], pagination: { total, page, limit, totalPages } }
-
-- GET /api/leads/:id
-  - Get single lead (admin & sales)
-
-- POST /api/leads
-  - Admin only
-  - Body: lead fields (name, email, status, source)
-
-- PUT /api/leads/:id
-  - Admin only
-  - Body: partial lead update
-
-- DELETE /api/leads/:id
-  - Admin only
-
-- GET /api/leads/export
-  - Export CSV for current filters, returns text/csv
-
-Notes:
-- Pagination is implemented server-side using `skip` and `limit` with a default limit of 10.
-- Filtering, search, and sort combine together on the server.
-
----
-
-## Frontend notes
-
-- API layer: `frontend/src/services/api.ts` creates an Axios instance with `baseURL` taken from `VITE_API_URL`.
-- Auth context and protected routes: `frontend/src/contexts/AuthContext.tsx` and `App.tsx` (PrivateRoute wrapper).
-- Debounced search: `frontend/src/hooks/useDebounce.ts` used in `DashboardPage.tsx`.
-- CSV export: UI button triggers `frontend/src/services/leadService.exportLeads` which downloads a CSV blob.
-- Dark mode: supported via `ThemeContext` and a floating toggle (persisted to localStorage).
-
----
-
-## Assignment compliance checklist (summary)
-
-Mandatory items implemented (Done):
-- React + TypeScript + TailwindCSS (frontend)
-- Node + Express + TypeScript + Mongoose (backend)
-- JWT authentication, bcrypt hashing, protected routes
-- Leads CRUD with fields specified
-- Advanced filtering, search, sort
-- Server-side pagination (limit 10 default)
-- Debounced search
-- CSV export
-- Role-based access control (admin / sales)
-
-Partial / recommended improvements to reach "perfect":
-- Replace a few remaining `any` usages (csv parser wrapper and some service payload types). These are low-risk and I can fix them quickly.
-- Add `docker-compose.yml` to orchestrate backend + Mongo + frontend preview for a single-command dev environment.
-- Add API documentation (OpenAPI or Postman collection) for reviewers.
-- Add a small CI (GitHub Actions) to run `tsc --noEmit` and `npm test` if tests are added.
-
----
-
-## Quick troubleshooting
-
-- If `npm run dev` fails in frontend: run `npm install` in `frontend`, ensure `.env` exists and `VITE_API_URL` is correct.
-- If backend cannot connect to Mongo: set `MONGO_URI` to a running Mongo or rely on the in-memory fallback for development.
-
-Useful commands
+From the repository root:
 
 ```bash
-# typecheck (backend)
-cd backend
-npx tsc --noEmit
-
-# typecheck (frontend)
-cd frontend
-npx tsc --noEmit
+docker compose up
 ```
 
+Use rebuild only after dependency or Dockerfile changes:
 
+```bash
+docker compose up --build
+```
 
+## API Summary
 
+Base URL:
+
+```text
+http://localhost:5001/api
+```
+
+Auth:
+
+- `POST /auth/register`
+- `POST /auth/login`
+
+Leads:
+
+- `GET /leads`
+- `GET /leads/:id`
+- `POST /leads`
+- `PUT /leads/:id`
+- `DELETE /leads/:id`
+- `GET /leads/export`
+
+See [API.md](./API.md) for details.
+
+## Useful Commands
+
+Backend build:
+
+```bash
+cd backend
+npm run build
+```
+
+Frontend lint and build:
+
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+
+## Assignment Checklist
+
+- React + TypeScript: done
+- TailwindCSS: done
+- Node + Express + TypeScript: done
+- MongoDB + Mongoose: done
+- JWT auth: done
+- Password hashing: done
+- Protected routes: done
+- Request validation: done
+- Centralized error handling: done
+- Leads CRUD: done
+- Advanced filters and search: done
+- Backend pagination: done
+- Debounced search: done
+- CSV export: done
+- Role-based access control: done
+- Docker setup: done
+- Dark mode: done
+- `.env.example`: done
+- API documentation: done

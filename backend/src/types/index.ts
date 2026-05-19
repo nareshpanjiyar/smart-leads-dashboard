@@ -7,6 +7,7 @@ export interface IUser extends Document {
   role: 'admin' | 'sales';
   createdAt: Date;
   updatedAt: Date;
+  matchPassword(enteredPassword: string): Promise<boolean>;
 }
 
 export interface ILead extends Document {
@@ -20,7 +21,7 @@ export interface ILead extends Document {
 
 export interface JwtPayload {
   id: string;
-  role: string;
+  role: IUser['role'];
 }
 
 export interface PaginationMeta {

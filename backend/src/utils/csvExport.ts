@@ -5,8 +5,10 @@ type Json2CsvParserOptions = {
 };
 
 type Json2CsvParser = {
-  parse: (data: any[]) => string;
+  parse: (data: CsvLead[]) => string;
 };
+
+type CsvLead = Pick<ILead, 'name' | 'email' | 'status' | 'source' | 'createdAt'>;
 
 export const generateCsv = (leads: ILead[]) => {
   // import at runtime to avoid TypeScript module resolution issues for `json2csv` during ts-node execution
@@ -15,5 +17,5 @@ export const generateCsv = (leads: ILead[]) => {
   const { Parser } = mod;
   const fields = ['name', 'email', 'status', 'source', 'createdAt'];
   const parser = new Parser({ fields });
-  return parser.parse(leads as any[]);
+  return parser.parse(leads);
 };

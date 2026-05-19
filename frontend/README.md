@@ -1,19 +1,32 @@
-# Smart Leads Dashboard
+# Frontend — Smart Leads Dashboard
 
-Full-stack Lead Management Dashboard (MERN + TypeScript).
-
-## Features
-- JWT Authentication (register/login)
-- Role-based access (Admin / Sales User)
-- CRUD for leads with advanced filtering, search, sort, pagination
-- Debounced search
-- CSV export
-- Dark mode support
-- Dockerised
+React, TypeScript, TailwindCSS, and Vite frontend for the Smart Leads Dashboard.
 
 ## Setup
 
-### 1. Clone & install
+Create `frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:5001/api
+```
+
+Install and run:
+
 ```bash
-git clone <repo-url>
-cd smart-leads-dashboard
+npm install
+npm run dev
+```
+
+Build:
+
+```bash
+npm run build
+```
+
+Lint:
+
+```bash
+npm run lint
+```
+
+For Vercel deployment, `vercel.json` rewrites all client routes to `index.html` so direct visits to `/login`, `/register`, and `/dashboard` work.
