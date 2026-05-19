@@ -10,16 +10,17 @@ const app = express();
 const originsEnv = process.env.CLIENT_ORIGINS || process.env.CLIENT_URL || '';
 const allowedOrigins = originsEnv
 	.split(',')
-	.map((s) => s.trim())
+	.map((s) => s.trim().replace(/\/$/, ''))
 	.filter(Boolean);
 
 const corsOptions = {
 	origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
 		// allow non-browser tools like curl/postman (no origin)
 		if (!origin) return callback(null, true);
+		const normalizedOrigin = origin.replace(/\/$/, '');
 		// if no allowedOrigins configured, allow everything (fallback)
 		if (allowedOrigins.length === 0) return callback(null, true);
-		if (allowedOrigins.includes(origin)) return callback(null, true);
+		if (allowedOrigins.includes(normalizedOrigin)) return callback(null, true);
 		// don't throw — signal disallowed origin so express/cors will respond without ACAO
 		return callback(null, false);
 	},
