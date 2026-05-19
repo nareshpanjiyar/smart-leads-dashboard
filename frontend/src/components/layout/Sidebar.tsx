@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import Logo from '../common/Logo';
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -20,7 +21,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
       />
 
       <aside className={`fixed left-0 top-0 h-full z-30 transform transition-transform bg-gray-800 text-white w-64 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
-        <div className="p-4 text-xl font-bold border-b border-gray-700">Leads Dashboard</div>
+        <div className="p-4 border-b border-gray-700">
+          <Logo />
+        </div>
         <nav className="flex-1 p-4">
           <Link
             to="/dashboard"

@@ -1,4 +1,5 @@
 import { useTheme } from '../../hooks/useTheme';
+import Logo from '../common/Logo';
 
 interface HeaderProps {
   onToggleSidebar?: () => void;
@@ -16,7 +17,8 @@ const Header: React.FC<HeaderProps> = ({ onToggleSidebar }) => {
         >
           ☰
         </button>
-        <h1 className="text-xl font-semibold dark:text-white">Smart Leads</h1>
+        <Logo compact className="md:hidden" />
+        <h1 className="hidden text-xl font-semibold dark:text-white md:block">Smart Leads</h1>
       </div>
       <div className="flex items-center gap-3">
         <button
