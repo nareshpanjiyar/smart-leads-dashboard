@@ -1,39 +1,41 @@
-import { createContext, useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import type { User } from '../types';
 import { login as loginApi, register as registerApi } from '../services/authService';
 import api from '../services/api';
+import { AuthContext } from './auth';
 
-interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string, role?: string) => Promise<void>;
-  logout: () => void;
-  loading: boolean;
+interface TokenPayload {
+  id: string;
+  role: User['role'];
 }
 
-export const AuthContext = createContext<AuthContextType>({} as AuthContextType);
+const decodeToken = (storedToken: string): User | null => {
+  try {
+    const payload = JSON.parse(atob(storedToken.split('.')[1])) as TokenPayload;
+    return { _id: payload.id, name: '', email: '', role: payload.role };
+  } catch {
+    localStorage.removeItem('token');
+    delete api.defaults.headers.common['Authorization'];
+    return null;
+  }
+};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      // Fetch user profile (optional, we can decode token)
-      // For simplicity, decode manually:
-      try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser({ _id: payload.id, name: '', email: '', role: payload.role });
-      } catch {
-        logout();
-      }
+  const initialToken = localStorage.getItem('token');
+  const [user, setUser] = useState<User | null>(() => {
+    if (!initialToken) return null;
+    api.defaults.headers.common['Authorization'] = `Bearer ${initialToken}`;
+    return decodeToken(initialToken);
+  });
+  const [token, setToken] = useState<string | null>(() => {
+    if (!initialToken) return null;
+    if (decodeToken(initialToken)) {
+      return initialToken;
     }
-    setLoading(false);
-  }, [token]);
+    return null;
+  });
+  const loading = false;
 
   const login = async (email: string, password: string) => {
     const { data } = await loginApi({ email, password });

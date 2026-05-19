@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import type { Lead, Filters } from '../types';
+import type { Lead, Filters, LeadPayload } from '../types';
 import { getLeads, createLead, updateLead, deleteLead, exportLeads } from '../services/leadService';
 import { useDebounce } from '../hooks/useDebounce';
 import { useAuth } from '../hooks/useAuth';
+import { getErrorMessage } from '../utils/errorMessage';
 import LeadFilters from '../components/leads/LeadFilters';
 import LeadTable from '../components/leads/LeadTable';
 import Modal from '../components/common/Modal';
@@ -31,34 +32,36 @@ const DashboardPage: React.FC = () => {
 
   const debouncedSearch = useDebounce(filters.search, 500);
 
-  const fetchLeads = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const params: Filters = {
-        ...filters,
-        search: debouncedSearch,
-        page: filters.page,
-      };
-      const { data } = await getLeads(params);
+  const loadLeads = useCallback((params: Filters) => {
+    void getLeads(params)
+      .then(({ data }) => {
       setLeads(data.leads);
       setPagination(data.pagination);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load leads');
-    } finally {
-      setLoading(false);
-    }
-  }, [filters.status, filters.source, filters.sort, filters.page, debouncedSearch]);
+        setError('');
+      })
+      .catch((err: unknown) => {
+        setError(getErrorMessage(err, 'Failed to load leads'));
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   useEffect(() => {
-    fetchLeads();
-  }, [fetchLeads]);
+    loadLeads({
+      ...filters,
+      search: debouncedSearch,
+      page: filters.page,
+    });
+  }, [debouncedSearch, filters, loadLeads]);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setLoading(true);
     setFilters((prev) => ({ ...prev, [e.target.name]: e.target.value, page: 1 }));
   };
 
   const handlePageChange = (newPage: number) => {
+    setLoading(true);
     setFilters((prev) => ({ ...prev, page: newPage }));
   };
 
@@ -67,7 +70,7 @@ const DashboardPage: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleFormSubmit = async (formData: any) => {
+  const handleFormSubmit = async (formData: LeadPayload) => {
     setFormLoading(true);
     try {
       if (editingLead) {
@@ -76,9 +79,10 @@ const DashboardPage: React.FC = () => {
         await createLead(formData);
       }
       setModalOpen(false);
-      fetchLeads();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Operation failed');
+      setLoading(true);
+      loadLeads({ ...filters, search: debouncedSearch });
+    } catch (err: unknown) {
+      alert(getErrorMessage(err, 'Operation failed'));
     } finally {
       setFormLoading(false);
     }
@@ -93,9 +97,10 @@ const DashboardPage: React.FC = () => {
     if (!window.confirm('Delete this lead?')) return;
     try {
       await deleteLead(id);
-      fetchLeads();
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Delete failed');
+      setLoading(true);
+      loadLeads({ ...filters, search: debouncedSearch });
+    } catch (err: unknown) {
+      alert(getErrorMessage(err, 'Delete failed'));
     }
   };
 
@@ -114,8 +119,8 @@ const DashboardPage: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
-    } catch (err) {
-      alert('Export failed');
+    } catch (err: unknown) {
+      alert(getErrorMessage(err, 'Export failed'));
     }
   };
 

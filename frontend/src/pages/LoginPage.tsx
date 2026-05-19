@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 import ErrorMessage from '../components/common/ErrorMessage';
+import { getErrorMessage } from '../utils/errorMessage';
 
 const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -20,8 +21,8 @@ const LoginPage: React.FC = () => {
     try {
       await login(email, password);
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Login failed'));
     } finally {
       setLoading(false);
     }

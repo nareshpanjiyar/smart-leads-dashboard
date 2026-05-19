@@ -15,6 +15,8 @@ export interface Lead {
   updatedAt: string;
 }
 
+export type LeadPayload = Pick<Lead, 'name' | 'email' | 'status' | 'source'>;
+
 export interface PaginationMeta {
   page: number;
   limit: number;

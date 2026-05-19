@@ -32,7 +32,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = false, onClose }) => {
         </nav>
         <div className="p-4 border-t border-gray-700">
           <p className="text-sm">{user?.name} ({user?.role})</p>
-          <button onClick={() => { logout(); onClose && onClose(); }} className="text-sm text-blue-300 hover:text-blue-100 mt-1">Logout</button>
+          <button onClick={() => { logout(); onClose?.(); }} className="text-sm text-blue-300 hover:text-blue-100 mt-1">Logout</button>
         </div>
       </aside>
     </>

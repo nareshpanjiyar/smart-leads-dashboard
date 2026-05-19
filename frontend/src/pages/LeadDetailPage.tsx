@@ -5,6 +5,7 @@ import type { Lead } from '../types';
 import LeadDetail from '../components/leads/LeadDetail';
 import Loader from '../components/common/Loader';
 import ErrorMessage from '../components/common/ErrorMessage';
+import { getErrorMessage } from '../utils/errorMessage';
 
 const LeadDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,8 +18,8 @@ const LeadDetailPage: React.FC = () => {
       try {
         const { data } = await getLeadById(id!);
         setLead(data);
-      } catch (err: any) {
-        setError(err.response?.data?.message || 'Failed to load lead');
+      } catch (err: unknown) {
+        setError(getErrorMessage(err, 'Failed to load lead'));
       } finally {
         setLoading(false);
       }

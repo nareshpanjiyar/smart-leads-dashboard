@@ -1,29 +1,17 @@
-version: '3.8'
-
 services:
-  mongo:
-    image: mongo:6.0
-    restart: unless-stopped
-    environment:
-      MONGO_INITDB_DATABASE: smart-leads
-    volumes:
-      - mongo-data:/data/db
-    ports:
-      - "27017:27017"
-
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      target: dev
     restart: unless-stopped
     env_file:
-      - .env
+      - ./backend/.env
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     ports:
       - "5001:5001"
-    depends_on:
-      - mongo
     volumes:
-      - ./backend:/usr/src/app
-
-volumes:
-  mongo-data:
+      - ./backend:/app
+      - /app/node_modules

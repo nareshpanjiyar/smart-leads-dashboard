@@ -2,28 +2,22 @@ import React, { useState } from 'react';
 import Input from '../common/Input';
 import Select from '../common/Select';
 import Button from '../common/Button';
-
-interface LeadFormData {
-  name: string;
-  email: string;
-  status: string;
-  source: string;
-}
+import type { LeadPayload } from '../../types';
 
 interface LeadFormProps {
-  initialData?: LeadFormData;
-  onSubmit: (data: LeadFormData) => void;
+  initialData?: LeadPayload;
+  onSubmit: (data: LeadPayload) => void;
   isLoading?: boolean;
 }
 
 const LeadForm: React.FC<LeadFormProps> = ({ initialData, onSubmit, isLoading }) => {
-  const [form, setForm] = useState<LeadFormData>(
+  const [form, setForm] = useState<LeadPayload>(
     initialData || { name: '', email: '', status: 'New', source: 'Website' }
   );
-  const [errors, setErrors] = useState<Partial<LeadFormData>>({});
+  const [errors, setErrors] = useState<Partial<LeadPayload>>({});
 
   const validate = () => {
-    const errs: Partial<LeadFormData> = {};
+    const errs: Partial<LeadPayload> = {};
     if (!form.name.trim()) errs.name = 'Name is required';
     if (!form.email.trim()) errs.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Invalid email';

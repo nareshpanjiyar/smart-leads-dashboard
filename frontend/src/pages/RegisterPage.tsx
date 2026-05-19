@@ -5,6 +5,7 @@ import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 import Select from '../components/common/Select';
 import ErrorMessage from '../components/common/ErrorMessage';
+import { getErrorMessage } from '../utils/errorMessage';
 
 const RegisterPage: React.FC = () => {
   const { register } = useAuth();
@@ -24,8 +25,8 @@ const RegisterPage: React.FC = () => {
     try {
       await register(form.name, form.email, form.password, form.role);
       navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+    } catch (err: unknown) {
+      setError(getErrorMessage(err, 'Registration failed'));
     } finally {
       setLoading(false);
     }

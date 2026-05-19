@@ -1,7 +1,5 @@
 import api from './api';
-import type { Filters, Lead } from '../types';
-
-type LeadPayload = Omit<Lead, '_id' | 'createdAt' | 'updatedAt'>;
+import type { Filters, LeadPayload } from '../types';
 
 export const getLeads = (filters: Filters) => api.get('/leads', { params: filters });
 export const getLeadById = (id: string) => api.get(`/leads/${id}`);
